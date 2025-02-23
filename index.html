@@ -3,38 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мобильная веб-страница</title>
+    <title>Игра в Telegram</title>
+    <link rel="stylesheet" href="css.css">
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
             line-height: 1.6;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         h1 {
             color: #333;
-        }
-        p {
-            color: #666;
+            margin: 0;
         }
         .button {
             display: inline-block;
-            background-color: #4CAF50;
+            background-color: #0088cc;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
             text-align: center;
             text-decoration: none;
-            font-size: 16px;
-            margin: 4px 2px;
+            font-size: 18px;
+            margin: 20px 0;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 8px;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать!</h1>
-    <p>Это простая мобильная веб-страница, созданная для использования с Telegram ботом.</p>
-    <p>Вы можете добавить здесь любой контент, который хотите показать пользователям.</p>
-    <a href="#" class="button">Нажми меня</a>
+    <div>
+        <h1>Найди предмет</h1>
+        <p>Добро пожаловать в игру "Найди предмет"!</p>
+        <a href="game.html" class="button">Начать игру</a>
+    </div>
 </body>
-</html> 
+</html>
