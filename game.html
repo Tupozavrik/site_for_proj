@@ -63,7 +63,7 @@
             box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
         }
 
-        #winMessage {
+        #winMessage, #loseMessage {
             display: none;
             background-color: rgba(0, 0, 0, 0.85);
             position: fixed;
@@ -75,7 +75,7 @@
             backdrop-filter: blur(5px);
         }
 
-        #winMessageContent {
+        #winMessageContent, #loseMessageContent {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -140,18 +140,56 @@
             opacity: 0;
         }
 
+        .skip-button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .skip-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Стили для описания искомого предмета */
+        .object-description {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin: 15px auto 0;
+            max-width: 80%;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            color: #2c3e50;
+            display: inline-block;
+        }
+
+        #objectToFind {
+            color: #e74c3c;
+            font-weight: 700;
+        }
+
         /* Адаптивные стили для разных размеров экрана */
+
+
         @media (max-width: 480px) {
             .controls-container {
                 padding: 8px 10px;
             }
 
-            .menu-button, .timer {
+            .menu-button, .timer, .skip-button {
                 padding: 8px 12px;
                 font-size: 13px;
             }
 
-            #winMessageContent {
+            #winMessageContent, #loseMessageContent {
                 padding: 20px;
                 width: 280px;
             }
@@ -178,25 +216,170 @@
 <body>
     <div id="gameContainer">
         <img id="gameImage" src="placeholder.jpg" alt="Игровое изображение" usemap="#gameMap">
-        <map name="gameMap">
-            <area shape="rect" coords="0,0,100,100" href="#" alt="Триггер" id="trigger">
+        <map name="gameMap" id="gameMap">
+            <!-- Триггеры будут добавляться динамически через JavaScript -->
         </map>
+        <!-- Добавляем описание искомого предмета -->
+        <div id="objectDescription" class="object-description">
+            Найдите: <span id="objectToFind">предмет</span>
+        </div>
     </div>
 
     <div class="controls-container">
         <a href="index.html" class="menu-button">← Меню</a>
         <div class="timer" id="timer">00:00</div>
+        <div class="skip-button" id="skipButton">Пропустить</div>
     </div>
+
+
+
     <div id="winMessage">
         <div id="winMessageContent">
             <h2>Поздравляем! Вы выиграли!</h2>
             <p>Вы нашли все предметы за <span id="finalTime">00:00</span></p>
             <a href="index.html" class="button">В главное меню</a>
-            <a href="game.html" class="button">Играть снова</a>
+            <a href="#" class="button" id="playAgainWin">Играть снова</a>
         </div>
     </div>
 
+    <div id="loseMessage">
+        <div id="loseMessageContent">
+            <h2>Уровень пропущен</h2>
+            <p>Не расстраивайтесь, попробуйте еще раз!</p>
+            <a href="index.html" class="button">В главное меню</a>
+            <a href="#" class="button" id="playAgainLose">Попробовать снова</a>
+        </div>
+    </div>
     <script>
+       // Массив данных для игры: изображение, координаты триггера и описание предмета
+       const gameData = [
+            {
+                image: 'placeholder.jpg',
+                // Координаты в процентах: x1%, y1%, x2%, y2%
+                coords: '0,0,20,15',
+                objectName: 'красную кнопку'
+            },
+            {
+                image: '2.jpeg',
+                coords: '15,10,25,20',
+                objectName: 'синий карандаш'
+            },
+            {
+                image: '2.jpeg', // Используем то же изображение, но с другим триггером
+                coords: '40,30,50,45',
+                objectName: 'зеленую книгу'
+            },
+            {
+                image: '2.jpeg', // Используем то же изображение, но с другим триггером
+                coords: '20,50,30,60',
+                objectName: 'желтую лампу'
+            },
+            {
+                image: '2.jpeg', // Используем то же изображение, но с другим триггером
+                coords: '60,15,70,25',
+                objectName: 'черные часы'
+            }
+        ];
+
+        // Текущий уровень игры
+        let currentLevel;
+
+        // Функция для получения случайного уровня
+        function getRandomLevel() {
+            const randomIndex = Math.floor(Math.random() * gameData.length);
+            return gameData[randomIndex];
+        }
+
+        // Установка уровня при загрузке страницы
+        function setGameLevel() {
+            // Получаем случайный уровень
+            currentLevel = getRandomLevel();
+
+            // Устанавливаем изображение
+            const gameImage = document.getElementById('gameImage');
+            gameImage.src = currentLevel.image;
+
+            // Устанавливаем описание искомого предмета
+            document.getElementById('objectToFind').textContent = currentLevel.objectName;
+
+            // Создаем триггер с нужными координатами после загрузки изображения
+            gameImage.onload = function() {
+                createTrigger(currentLevel.coords);
+            };
+
+            // На случай, если изображение уже в кэше и onload не сработает
+            if (gameImage.complete) {
+                createTrigger(currentLevel.coords);
+            }
+        }
+
+        // Функция для создания триггера с заданными координатами
+        function createTrigger(coords) {
+            // Очищаем предыдущую карту изображения
+            const gameMap = document.getElementById('gameMap');
+            gameMap.innerHTML = '';
+
+            // Получаем текущие размеры изображения
+            const gameImage = document.getElementById('gameImage');
+            const imageWidth = gameImage.clientWidth;
+            const imageHeight = gameImage.clientHeight;
+
+            // Разбиваем координаты (в процентах) на составляющие
+            const coordsArray = coords.split(',').map(Number);
+
+            // Преобразуем проценты в пиксели для текущего размера изображения
+            const x1 = Math.floor(coordsArray[0] * imageWidth / 100);
+            const y1 = Math.floor(coordsArray[1] * imageHeight / 100);
+            const x2 = Math.floor(coordsArray[2] * imageWidth / 100);
+            const y2 = Math.floor(coordsArray[3] * imageHeight / 100);
+
+            // Создаем новый триггер с пиксельными координатами
+            const area = document.createElement('area');
+            area.setAttribute('shape', 'rect');
+            area.setAttribute('coords', `${x1},${y1},${x2},${y2}`);
+            area.setAttribute('href', '#');
+            area.setAttribute('alt', 'Триггер');
+            area.setAttribute('id', 'trigger');
+
+            // Добавляем триггер на карту
+            gameMap.appendChild(area);
+
+            // Добавляем обработчик события для нового триггера
+            area.addEventListener('click', function(e) {
+                e.preventDefault();
+                clearInterval(timerInterval);
+
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
+                const seconds = (elapsedTime % 60).toString().padStart(2, '0');
+                document.getElementById('finalTime').textContent = `${minutes}:${seconds}`;
+                document.getElementById('winMessage').style.display = 'block';
+                createConfetti();
+            });
+
+            // Обновляем карту изображения при изменении размера окна
+            window.addEventListener('resize', function() {
+                // Небольшая задержка для стабилизации размеров
+                setTimeout(function() {
+                    createTrigger(coords);
+                }, 100);
+            });
+        }
+
+        // Загрузка уровня при старте
+        window.onload = function() {
+            setGameLevel();
+
+            // Добавляем обработчик для адаптации триггеров при изменении ориентации устройства
+            window.addEventListener('orientationchange', function() {
+                setTimeout(function() {
+                    if (currentLevel) {
+                        createTrigger(currentLevel.coords);
+                    }
+                }, 200);
+            });
+        };
+        
         // Таймер
         let startTime = Date.now();
         let timerInterval = setInterval(updateTimer, 1000);
@@ -208,19 +391,38 @@
             document.getElementById('timer').textContent = `${minutes}:${seconds}`;
         }
 
-        // Обработчик клика по триггеру
-        document.getElementById('trigger').addEventListener('click', function(e) {
-            e.preventDefault();
+        // Обработчик клика по кнопке "Пропустить"
+        document.getElementById('skipButton').addEventListener('click', function() {
             clearInterval(timerInterval);
-
-            const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-            const minutes = Math.floor(elapsedTime / 60).toString().padStart(2, '0');
-            const seconds = (elapsedTime % 60).toString().padStart(2, '0');
-            document.getElementById('finalTime').textContent = `${minutes}:${seconds}`;
-            document.getElementById('winMessage').style.display = 'block';
-            createConfetti();
+            document.getElementById('loseMessage').style.display = 'block';
         });
 
+        // Обработчики для кнопок "Играть снова"
+        document.getElementById('playAgainWin').addEventListener('click', function(e) {
+            e.preventDefault();
+            resetGame();
+        });
+
+        document.getElementById('playAgainLose').addEventListener('click', function(e) {
+            e.preventDefault();
+            resetGame();
+        });
+
+        // Функция сброса игры
+        function resetGame() {
+            // Скрываем сообщения
+            document.getElementById('winMessage').style.display = 'none';
+            document.getElementById('loseMessage').style.display = 'none';
+
+            // Устанавливаем новый уровень
+            setGameLevel();
+
+            // Сбрасываем таймер
+            startTime = Date.now();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            document.getElementById('timer').textContent = '00:00';
+        }
         // Создание эффекта конфетти
         function createConfetti() {
             const colors = ['#f39c12', '#e74c3c', '#3498db', '#2ecc71', '#9b59b6'];
@@ -262,5 +464,3 @@
     </script>
 </body>
 </html>
-
-
