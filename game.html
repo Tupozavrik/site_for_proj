@@ -417,7 +417,7 @@
 
         // Счетчик попыток
         let attemptsCount = 0;
-        const maxAttempts = 15;
+        const maxAttempts = 5;
 
         // Функция обработки неудачного клика
         function handleMissedClick() {
@@ -443,11 +443,11 @@
                 loseMessage.style.display = 'block';
 
                 console.log('Игра окончена: превышено количество попыток');
-            } else if (remainingAttempts <= 5) {
+            } else if (remainingAttempts <= 3) {
                 // Если осталось мало попыток, показываем предупреждение
                 const attemptsInfo = document.getElementById('attemptsInfo');
                 attemptsInfo.textContent = `Осталось попыток: ${remainingAttempts}`;
-                attemptsInfo.style.color = remainingAttempts <= 3 ? '#e74c3c' : '#f39c12';
+                attemptsInfo.style.color = remainingAttempts <= 2 ? '#e74c3c' : '#f39c12';
                 attemptsInfo.style.display = 'block';
             }
         }
